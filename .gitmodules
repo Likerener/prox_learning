@@ -1,0 +1,9 @@
+[submodule "submodules/MolmoBot"]
+	path = submodules/MolmoBot
+	url = git@github.com:allenai/MolmoBot.git
+[submodule "submodules/molmospaces"]
+	path = submodules/molmospaces
+	url = git@github.com:allenai/molmospaces.git
+[submodule "submodules/act"]
+	path = submodules/act
+	url = git@github.com:jdvakil/act.git
