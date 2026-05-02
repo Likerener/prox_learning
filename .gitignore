@@ -1,2 +1,41 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.venv/
+.eggs/
+build/
+dist/
+
+# Repo-specific large artifacts
+runs/                       # training outputs (checkpoints, logs, plots)
+data/                       # HDF5 trajectory shards (collected, not committed)
+reports/logs/*.log          # collection / training logs
+reports/checks/             # sanity-check scratch outputs
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# MuJoCo / mesh caches (legacy fr3_skin_mujoco location, kept for safety)
 fr3_skin_mujoco/.mj-install/**
 fr3_skin_mujoco/.mesh_cache/**
+.mj-install/
+.mesh_cache/
+
+# Paper build artifacts
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.toc
+paper/*.bbl
+paper/*.blg
+paper/*.synctex.gz
+paper/*.fls
+paper/*.fdb_latexmk
+
+# Keep .gitkeep markers
+!**/.gitkeep

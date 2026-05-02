@@ -1,0 +1,19 @@
+# Near-contact pick-and-place: fixed obstacle 5–8 cm from expert arm path.
+# Primary task for the paper's headline claim (PROJECT.md §4.2 Task 2).
+
+task: near_contact
+robot: franka_droid_skin
+mjcf: assets/mjcf/fr3_skin.xml
+n_envs: 10
+scenes_per_env: 100
+obstacle:
+  enabled: true
+  distance_to_path_m: [0.05, 0.08]
+  randomize_pose: true
+trajectory_filters:
+  min_proximity_informative_fraction: 0.30  # PROJECT.md §3.3
+  min_below_200mm_steps: 5
+recording:
+  rgb: { resolution: [224, 224], cameras: [head, wrist] }
+  tof: { resolution: [8, 8], n_sensors: 32, range_mm: [20, 4000] }
+  hz: 20

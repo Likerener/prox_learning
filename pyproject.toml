@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pla"
+version = "0.1.0"
+description = "Peripersonal Language-Action policies via whole-body ToF proximity sensing"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Proprietary" }
+authors = [
+    { name = "Jay Vakil", email = "jayluvsgeography@outlook.com" },
+]
+
+dependencies = [
+    "numpy>=1.26",
+    "torch>=2.2",
+    "h5py>=3.10",
+    "mujoco>=3.0",
+    "matplotlib>=3.8",
+    "scipy>=1.11",
+    "trimesh>=4.0",
+    "pyyaml>=6.0",
+    "plotly>=5.18",
+]
+
+[project.optional-dependencies]
+viz = [
+    "pybullet>=3.2",
+    "imageio[ffmpeg]>=2.34",
+]
+dev = [
+    "pytest>=7.4",
+    "ruff>=0.4",
+]
+
+[tool.setuptools.packages.find]
+include = ["pla*"]
+exclude = ["submodules*", "data*", "runs*", "reports*", "paper*", "assets*", "configs*", "scripts*", "docs*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"

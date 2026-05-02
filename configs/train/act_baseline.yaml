@@ -1,0 +1,27 @@
+# VLM-only ACT baseline — identical to PLA with proximity tokens removed.
+# This is the most critical experiment (PROJECT.md §4.3).
+
+model:
+  d_model: 512
+  proprio_dim: 7
+  action_dim: 7
+  chunk_size: 100
+  vl_backbone: molmo2-4b
+  freeze_vl: true
+  use_proximity: false     # the one-line difference vs configs/train/pla.yaml
+
+optim:
+  lr: 1.0e-5
+  batch_size: 8
+  optimizer: adam
+  beta_kl: 10.0
+  max_steps: 200000
+  grad_clip_norm: 1.0
+
+data:
+  root: data/raw
+  train_split: 0.95
+
+logging:
+  run_dir: runs/baseline_vlm_only
+  wandb_project: pla-corl
