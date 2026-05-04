@@ -47,6 +47,8 @@ training, evaluating) — not *writing* it.
 | Ablation orchestration (4 ablations)         | Code complete + smoke-tested | grad-norm pass for each variant               |
 | Per-folder scientific READMEs (12 files)     | Complete        | every subfolder has its own README                        |
 | Paper draft (LaTeX + bib + md mirror)        | Methods locked, results pre-registered | `paper/main.tex`, `paper/main.md`, `paper/references.bib` |
+| Pre-flight + streaming sentinel               | Code complete + verified | `preflight.py`, `sentinel.py`, abort path tested      |
+| Deep dataset audit (post-collection)         | Code complete + verified | `verify.py` catches stuck sensor, frozen RGB, |action|>1 |
 
 ---
 

@@ -14,13 +14,45 @@ here:
 
 ## Files
 
-| file                | what's in it                                        |
-|---------------------|-----------------------------------------------------|
-| `heatmap.py`        | ToF heatmap sequences + sensor-importance heatmaps  |
-| `composite.py`      | composite trajectory videos (RGB + ToF overlay)     |
-| `pointcloud.py`     | sensor pointcloud reconstruction (3D)               |
-| `dataset_plots.py`  | depth histograms, coverage stats, per-sensor stats  |
-| `cvae_plots.py`     | (legacy) CVAE pretrain plots                        |
+| file                | what's in it                                                      |
+|---------------------|-------------------------------------------------------------------|
+| `dataset_audit.py`  | **pre/post-collection visual audit suite (7 plots)**              |
+| `heatmap.py`        | ToF heatmap sequences + sensor-importance heatmaps                |
+| `composite.py`      | composite trajectory videos (RGB + ToF overlay)                   |
+| `pointcloud.py`     | sensor pointcloud reconstruction (3D)                             |
+| `dataset_plots.py`  | depth histograms, coverage stats, per-sensor stats (legacy)       |
+| `cvae_plots.py`     | (legacy) CVAE pretrain plots                                      |
+
+## Visual audit suite (`dataset_audit.py`)
+
+The single most important thing to look at before launching a long
+collection. Generates 7 plots from any HDF5 dataset directory; each
+catches a specific pre-launch failure mode you can't catch from
+metrics alone.
+
+| plot                              | catches                                                    |
+|-----------------------------------|------------------------------------------------------------|
+| `01_tof_montage.png`              | sensors all-saturated (skin orientation flipped); peak frame missing  |
+| `02_per_sensor_dist.png`          | dead sensors (single-spike); stuck-at-saturation; uneven coverage    |
+| `03_sensor_coverage.png`          | dead sensor min > 1500 mm; stuck σ < 0.5 mm                |
+| `04_episode_traces.png`           | depth-min vs time / action-norm vs time; check trajectories make sense |
+| `05_rgb_strip.png`                | blank cameras; frozen RGB; garbage RGB                     |
+| `06_length_distribution.png`      | truncation; planner timeout; success-by-length pattern     |
+| `07_action_distribution.png`      | action explosion (tail near ±1 cap); zero-action policy    |
+
+```bash
+# Run on any dataset directory:
+python -m pla.viz.dataset_audit \
+    --data-dir data/raw/near_contact_pilot \
+    --out reports/checks/audit_pilot
+
+# Then eyeball:
+cat reports/checks/audit_pilot/INDEX.md
+```
+
+The preflight script (`scripts/preflight.sh`) calls this automatically
+on the 50-episode pilot dataset and refuses to declare success until
+you've inspected the plots.
 
 ## Outputs land in...
 

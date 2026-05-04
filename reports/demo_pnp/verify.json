@@ -1,0 +1,125 @@
+{
+  "data_dir": "reports/demo_pnp/raw",
+  "total": 3,
+  "n_files": 3,
+  "n_sensors_seen": [
+    8
+  ],
+  "success_count": 3,
+  "success_rate": 1.0,
+  "schema_ok_count": 3,
+  "nan_count": 0,
+  "inf_count": 0,
+  "prox_informative_count": 3,
+  "frac_traj_prox_informative": 1.0,
+  "n_total_steps": 690,
+  "n_close_steps": 388,
+  "frac_steps_close": 0.5623188405797102,
+  "T_min": 230,
+  "T_max": 230,
+  "T_mean": 230.0,
+  "T_p10": 230.0,
+  "T_p50": 230.0,
+  "T_p90": 230.0,
+  "act_abs_max_global": 0.027015209197998047,
+  "n_with_dead_sensors": 0,
+  "n_with_frozen_rgb": 0,
+  "per_sensor_global_min_mm": [
+    20.0,
+    20.0,
+    20.0,
+    20.0,
+    20.0,
+    20.0,
+    20.0,
+    20.0
+  ],
+  "n_dead_sensors_dataset": 0,
+  "audits": [
+    {
+      "file": "reports/demo_pnp/raw/episode_000000.h5",
+      "size_bytes": 35115888,
+      "schema_ok": true,
+      "schema_errors": [],
+      "episodes": [
+        {
+          "key": "episode_0",
+          "T": 230,
+          "n_sensors": 8,
+          "success": true,
+          "tof_min_mm": 20.0,
+          "tof_max_mm": 983.520751953125,
+          "tof_mean_mm": 425.61383056640625,
+          "act_mean": 1.2763205631927121e-05,
+          "act_abs_max": 0.026432394981384277,
+          "act_std": 0.00814158283174038,
+          "any_nan": false,
+          "any_inf": false,
+          "prox_informative": true,
+          "n_steps_close": 131,
+          "n_frozen_rgb": 0,
+          "per_sensor_std_min": 169.4828338623047,
+          "per_sensor_min_min_mm": 20.0,
+          "per_sensor_min_max_mm": 20.0
+        }
+      ]
+    },
+    {
+      "file": "reports/demo_pnp/raw/episode_000001.h5",
+      "size_bytes": 35115888,
+      "schema_ok": true,
+      "schema_errors": [],
+      "episodes": [
+        {
+          "key": "episode_0",
+          "T": 230,
+          "n_sensors": 8,
+          "success": true,
+          "tof_min_mm": 20.0,
+          "tof_max_mm": 951.8760375976562,
+          "tof_mean_mm": 416.0631103515625,
+          "act_mean": 2.7876611056854017e-05,
+          "act_abs_max": 0.027015209197998047,
+          "act_std": 0.008150395005941391,
+          "any_nan": false,
+          "any_inf": false,
+          "prox_informative": true,
+          "n_steps_close": 125,
+          "n_frozen_rgb": 0,
+          "per_sensor_std_min": 154.1319122314453,
+          "per_sensor_min_min_mm": 20.0,
+          "per_sensor_min_max_mm": 27.65416145324707
+        }
+      ]
+    },
+    {
+      "file": "reports/demo_pnp/raw/episode_000002.h5",
+      "size_bytes": 35115888,
+      "schema_ok": true,
+      "schema_errors": [],
+      "episodes": [
+        {
+          "key": "episode_0",
+          "T": 230,
+          "n_sensors": 8,
+          "success": true,
+          "tof_min_mm": 20.0,
+          "tof_max_mm": 935.554443359375,
+          "tof_mean_mm": 411.6667785644531,
+          "act_mean": -1.2082268767699134e-05,
+          "act_abs_max": 0.025707006454467773,
+          "act_std": 0.008094759657979012,
+          "any_nan": false,
+          "any_inf": false,
+          "prox_informative": true,
+          "n_steps_close": 132,
+          "n_frozen_rgb": 0,
+          "per_sensor_std_min": 160.25149536132812,
+          "per_sensor_min_min_mm": 20.0,
+          "per_sensor_min_max_mm": 20.0
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

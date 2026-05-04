@@ -170,11 +170,20 @@ def main() -> None:
     log_path = Path("reports/logs") / f"collect_{task_name}_{int(time.time())}.log"
     log_path.parent.mkdir(parents=True, exist_ok=True)
 
+    # Honour the sentinel-written ABORT marker between episodes.
+    from pla.data.sentinel import collector_should_stop
+
     if args.dry_run:
+        n_written = 0
         for i in range(args.n_traj):
+            if collector_should_stop(out_dir):
+                print(f"[collect] sentinel ABORT after {n_written} traj")
+                break
             _write_synthetic_episode(out_dir, i, n_sensors=cfg.get("n_sensors", 32))
+            n_written += 1
         log_path.write_text(json.dumps({
-            "n_traj": args.n_traj, "task": task_name, "dry_run": True,
+            "n_written": n_written, "n_target": args.n_traj,
+            "task": task_name, "dry_run": True,
         }, indent=2))
         return
 
@@ -187,7 +196,8 @@ def main() -> None:
             "synthetic dataset for pipeline tests."
         ) from e
 
-    # MolmoSpaces takes its own config object; pass through.
+    # MolmoSpaces takes its own config object; pass through. The ABORT
+    # marker is checked from inside `collect_episode` (next edit).
     run_molmospaces(
         task_config=cfg,
         out_dir=out_dir,

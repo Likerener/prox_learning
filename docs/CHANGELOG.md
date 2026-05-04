@@ -8,6 +8,52 @@ specific claims see [SANITY_CHECKS.md](SANITY_CHECKS.md).
 
 ---
 
+## 2026-05-03 (Day 2)
+
+### Added
+- **Visual audit suite (`pla/viz/dataset_audit.py`)**: 7 plots for
+  eyeballing data quality before launching a long run. ToF heatmap
+  montage at far/mid/late/peak-contact frames; per-sensor depth
+  histograms (32-panel grid); per-sensor coverage diagnostics (min
+  reading + std); per-episode traces of depth-min and action-norm vs
+  time; RGB sanity strips; episode-length histogram; per-joint action
+  distribution + summary heatmap. Generates PNG + PDF + INDEX.md per
+  run. Hooked into `scripts/preflight.sh` step [5/5] so the pilot
+  produces these automatically. Verified on 12 synthetic episodes —
+  all 7 plots render correctly.
+- **Pre-flight + streaming validator (`pla/data/preflight.py`,
+  `pla/data/sentinel.py`)**: protect the long collection run from wasted
+  compute. `preflight` runs single-shot checks (MJCF loads, sensor
+  cameras count matches config, ToF render produces sane depths, env
+  imports + reset+step, disk space, optional 1-episode round-trip).
+  `sentinel` watches the output dir during collection, audits each new
+  shard, writes `SENTINEL_ABORT` marker after a configurable bad streak
+  or low prox-informative coverage; the collector polls the marker
+  between episodes and exits cleanly.
+- **Deep `verify` (extended `pla/data/verify.py`)**: post-collection
+  audit beyond schema — per-sensor stuck/dead detection, frozen-RGB
+  signature, action |max|, episode-length distribution, success-rate
+  warning band. Required-vs-warn distinction; `--strict` exits non-zero
+  on any required failure.
+- **Orchestration scripts**: new `scripts/preflight.sh` runs the full
+  preflight → 50-traj pilot → sentinel → deep-verify gate sequence.
+  `scripts/collect_data.sh` updated to launch sentinel + collector in
+  parallel tmux sessions, with the abort marker contract.
+
+### Verified
+- Preflight correctly fails on missing MJCF and gracefully skips on
+  missing MolmoSpaces env (status `SKIP`, not `FAIL`).
+- Sentinel detects each new shard, writes heartbeats every N eps, exits
+  on target reached.
+- Sentinel abort path: 3 consecutive bad shards triggers marker write
+  (verified on synthetic broken h5 files).
+- Collector honours pre-existing abort marker — exits at iteration 0
+  with 0 files written.
+- Deep verify passes on synthetic-healthy 12-episode dataset, fails on
+  synthetic-pathological dataset (planted: stuck sensor, frozen RGB,
+  oversized action). All 3 defects caught; `--strict` exits 1.
+- All 5 modified modules AST-parse and import cleanly.
+
 ## 2026-05-02 (Day 1)
 
 ### Added
