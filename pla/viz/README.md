@@ -14,14 +14,17 @@ here:
 
 ## Files
 
-| file                | what's in it                                                      |
-|---------------------|-------------------------------------------------------------------|
-| `dataset_audit.py`  | **pre/post-collection visual audit suite (7 plots)**              |
-| `heatmap.py`        | ToF heatmap sequences + sensor-importance heatmaps                |
-| `composite.py`      | composite trajectory videos (RGB + ToF overlay)                   |
-| `pointcloud.py`     | sensor pointcloud reconstruction (3D)                             |
-| `dataset_plots.py`  | depth histograms, coverage stats, per-sensor stats (legacy)       |
-| `cvae_plots.py`     | (legacy) CVAE pretrain plots                                      |
+| file                  | what's in it                                                      |
+|-----------------------|-------------------------------------------------------------------|
+| `dataset_audit.py`    | **pre/post-collection visual audit suite (7 plots)**              |
+| `heatmap.py`          | ToF heatmap sequences + sensor-importance heatmaps                |
+| `composite.py`        | composite trajectory videos (RGB + ToF overlay)                   |
+| `pointcloud.py`       | dataset-driven sensor pointcloud reconstruction (3D)              |
+| `pointcloud_core.py`  | **pure-NumPy projection core (camera + legacy frames)**           |
+| `pointcloud_tests.py` | **6-test rigorous pointcloud reconstruction suite**               |
+| `sensor_overlay.py`   | **color-coded sensor-position overlays for the 29 ToF patches**   |
+| `dataset_plots.py`    | depth histograms, coverage stats, per-sensor stats (legacy)       |
+| `cvae_plots.py`       | (legacy) CVAE pretrain plots                                      |
 
 ## Visual audit suite (`dataset_audit.py`)
 
@@ -85,6 +88,61 @@ python -m pla.viz.dataset_plots --data-dir data/raw/near_contact \
   * self-contained captions — every axis labeled with units (mm for depth)
   * no embedded raster bitmaps for vector content (heatmaps may be raster
     inside a PDF wrapper)
+
+## Sensor-position overlays (`sensor_overlay.py`)
+
+The base `franka_skin_*.png` renders in `assets/reference_images/`
+show the FR3 + GenTact mesh, but the 4 mm ToF sites in the MJCF are
+**too small to see** at typical render resolution. `sensor_overlay`
+re-renders the FR3 from configurable orbit cameras, projects every one
+of the 29 sensor body positions into image pixels using the camera's
+own `cam_xpos / cam_xmat`, and draws a labelled disk per sensor with
+back-face culling.
+
+Color legend:
+
+| color  | link  | sensors | indices       |
+|--------|-------|---------|---------------|
+| red    | link2 | 7       | 0–6           |
+| orange | link3 | 8       | 0–7           |
+| green  | link5 | 6       | 0–5           |
+| blue   | link6 | 8       | 0–7           |
+
+```bash
+MUJOCO_GL=egl python -m pla.viz.sensor_overlay
+# → assets/reference_images/annotated/skin_overlay_*.png
+# → assets/reference_images/annotated/sensor_layout_table.csv (29 rows)
+# → assets/reference_images/annotated/skin_overlay_legend.png  (4-up grid)
+```
+
+## Pointcloud reconstruction tests (`pointcloud_tests.py`)
+
+Six tests validate the ToF-depth → world-point pipeline against
+mujoco-rendered ground truth, with diagnostic plots in
+`reports/checks/pointcloud_tests/`:
+
+| test | what it checks                                                                            | tolerance |
+|------|--------------------------------------------------------------------------------------------|-----------|
+| T1   | pinhole intrinsics: ray directions span the configured FOV, both frames                    | 1e-6      |
+| T2   | synthetic flat wall unprojects to coplanar points at correct distance, side length         | 1e-9      |
+| T3   | mujoco depth on a real wall: single-sensor reconstruction in world frame                   | 1 mm rms  |
+| T4   | 29-sensor coverage: every reconstructed point lies in the look-direction half-space        | 0 ghosts  |
+| T5   | static wall, two arm poses: same world plane reconstructed                                 | 5 mm rms  |
+| T6   | legacy `pla.viz.pointcloud` y-flip vs corrected `+v` body-frame formula (regression alarm) | report    |
+
+T6 surfaces an existing bug: the legacy `pla/viz/pointcloud.py`
+formula `(u·half·d, -v·half·d, d)` × `R_body` has a residual y-flip
+relative to the camera-frame ground truth (88 mm rms / 140 mm worst
+case at 0.18 m wall distance). The corrected formula is
+`(u·half·d, +v·half·d, d)` × `R_body`, or equivalently the
+camera-frame path `pla.viz.pointcloud_core.reconstruct_world_pts(...,
+frame="camera")` using `data.cam_xpos` / `data.cam_xmat`.
+
+```bash
+MUJOCO_GL=egl python -m pla.viz.pointcloud_tests
+# exit 0 if all 6 pass; PNG plots + results.json land in
+# reports/checks/pointcloud_tests/
+```
 
 ## Sanity-check checklist (Day 13)
 

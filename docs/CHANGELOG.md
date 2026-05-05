@@ -8,9 +8,76 @@ specific claims see [SANITY_CHECKS.md](SANITY_CHECKS.md).
 
 ---
 
+## 2026-05-04 (Day 3)
+
+### Added
+- **Annotated sensor reference images (`pla/viz/sensor_overlay.py`,
+  `assets/reference_images/annotated/`)**: the existing
+  `franka_skin_*.png` renders show the FR3 mesh but the 4 mm sensor
+  sites are invisible at the render resolution. New tool patches the
+  on-disk MJCF mesh paths, injects fixed orbit cameras, then projects
+  all 29 sensor body positions into image pixels with link-colored
+  labelled disks (red=link2, orange=link3, green=link5, blue=link6) and
+  back-face culling. Outputs: 4 PNG views (az = -180 / -90 / 0 / +90)
+  + 4-up legend grid + `sensor_layout_table.csv` (mjcf_index →
+  link/idx/world XYZ). Re-runnable: `MUJOCO_GL=egl python -m
+  pla.viz.sensor_overlay`.
+- **Pure-NumPy pointcloud projection core (`pla/viz/pointcloud_core.py`)**:
+  factored the inverse-pinhole math out of `pla/viz/pointcloud.py` into
+  a deterministic, side-effect-free module supporting two frames —
+  `frame="camera"` (standard OpenGL, +x right / +y up / -z forward) for
+  use with `data.cam_xpos / data.cam_xmat`, and `frame="depth_axis"`
+  for the legacy body-frame convention. Added `taxel_directions`,
+  `unproject_taxels`, `transform_points`, `reconstruct_world_pts`,
+  `fit_plane`. Back-compat alias `unproject_taxels_to_body` retained.
+- **6-test pointcloud reconstruction suite (`pla/viz/pointcloud_tests.py`)**:
+  rigorous validation of the ToF → world-point pipeline against
+  mujoco-rendered ground truth. T1 intrinsics; T2 synthetic flat wall;
+  T3 single-sensor mujoco wall (target rms < 1 mm); T4 29-sensor
+  coverage with no points reconstructed behind any sensor; T5 same
+  wall reconstructed from two arm poses; T6 legacy convention regression
+  report. Generates 4 diagnostic PNGs + `results.json` in
+  `reports/checks/pointcloud_tests/`. **All 6 tests pass**: T3 reaches
+  0.171 mm rms, T5 reaches 0.17 / 0.30 mm across two poses.
+
+### Verified
+- 29 sensors found at home pose (link2 ×7, link3 ×8, link5 ×6,
+  link6 ×8) — matches the `MJCF_ORDER` constant in `pla.viz.pointcloud`.
+- Sensor overlay projection uses fixed orbit cameras (mujoco computes
+  `cam_xpos / cam_xmat`), so projection always matches the renderer
+  exactly — no hand-rolled azimuth/elevation math.
+- Camera-frame reconstruction (`frame="camera"` + `cam_xpos / cam_xmat`)
+  recovers a known wall plane to **0.171 mm rms / 0.177 mm worst-case**
+  at 0.18 m wall distance (mujoco depth pipeline + our intrinsics).
+
+### Found (regression report)
+- The legacy formula in `pla/viz/pointcloud.py`
+  `(u·half·d, -v·half·d, d) × R_body` has the wrong y-sign relative to
+  the body frame defined by the MJCF camera quat `(0,1,0,0)`. T6
+  measures **88 mm rms / 140 mm worst case** vs camera-frame ground
+  truth at 0.18 m wall distance. The corrected body-frame formula is
+  `(u·half·d, +v·half·d, d) × R_body`, equivalent to using
+  `pla.viz.pointcloud_core.reconstruct_world_pts(..., frame="camera")`
+  with `data.cam_xpos / data.cam_xmat`. Fix lives in
+  `pointcloud_core`; `pla/viz/pointcloud.py` itself still calls the
+  back-compat alias and inherits the bug — flagged for fix.
+
+---
+
 ## 2026-05-03 (Day 2)
 
 ### Added
+- **Pipeline-validation demo (`pla/sim/demo_pnp.py`,
+  `reports/demo_pnp/`)**: self-contained kinematic FR3 pick-and-place
+  trajectory rendered through the real PLA collection + audit pipeline.
+  Uses the cached `scene_fr3.xml` molmo-spaces resource bundle (no
+  procthor required). 3 episodes × T=230 → 3 HDF5 shards (105 MB), 3
+  h264 MP4 videos, 15 keyframe PNGs, 7 audit-plot PNGs, deep verify
+  PASS. Runs in ~30 s on CPU. **Not real procthor house-1 data** —
+  documented explicitly in `reports/demo_pnp/README.md`. Demonstrates
+  the schema, audit visualizer, and verify pipeline all work
+  end-to-end.
+
 - **Visual audit suite (`pla/viz/dataset_audit.py`)**: 7 plots for
   eyeballing data quality before launching a long run. ToF heatmap
   montage at far/mid/late/peak-contact frames; per-sensor depth
