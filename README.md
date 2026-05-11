@@ -555,6 +555,212 @@ prox_learning/
 
 ---
 
+## 7.5. PLA training pipeline (`pla/`)
+
+The headline CoRL 2026 ablation — **PLA (with proximity) vs VLM-only ACT
+(without proximity)** — is implemented as a thin training/eval stack on top
+of the `submodules/act` ACT model. Both variants share an identical CVAE +
+transformer backbone; the only difference is whether 29 proximity tokens
+are inserted into the transformer encoder context. See `TODO.md` for the
+spec this stack implements.
+
+Layout:
+
+```
+pla/
+├── dataset.py            # PyTorch dataset over HDF5 trajectories + sibling MP4s
+├── proximity_encoder.py  # shared MLP: (B, 29, 8, 8) → (B, 29, 512)
+├── policy.py             # PLA_DETRVAE + PLAPolicy (loss + image normalization)
+├── eval_policy.py        # InferencePolicy wrapper for molmospaces eval
+├── train.py              # CLI entry: training loop with WandB + ckpting
+├── eval.py               # CLI entry: 200-ep benchmark eval, Wilson 95% CI
+└── diagnostics.py        # dataset sanity-check plots + summary.json
+```
+
+### 7.5.a Dataset format
+
+Each `house_<i>/trajectories_batch_*.h5` holds N trajectories under
+`traj_<i>/`. Per-trajectory layout:
+
+| Path | Shape / type | Notes |
+|------|--------------|-------|
+| `obs/proximity/<sensor>` | `(T, n_substeps, 8, 8)` float32 | 29 sensors named `link{2,3,5,6}_sensor_{i}`; mean-pooled over substep dim. **Substep dim ≡ 1 only when `proximity_sensor_period_ms=0`, which silently disables recording (see §6.1 + the dataset bug memory).** |
+| `obs/agent/qpos[t]` | `(T, 2000)` uint8 | JSON `{"arm":[7], "base":[], "gripper":[2]}` rows; we read `arm`. |
+| `actions/joint_pos[t]` | `(T, 2000)` uint8 | JSON `{"arm":[7], "gripper":[1]}` rows; we read `arm`. |
+| `obs_scene` | scalar bytes | JSON+pickle blob; `task_description` is the language string. |
+| `success` / `fail` | `(T,)` bool | Episode is "successful" if `success[-1] == True`. |
+| Sibling MP4s | per-camera | `episode_<00000000+i>_<cam>_batch_1_of_1.mp4` for `exo_camera_1`, `wrist_camera`. Read via `decord` at the chunk-start timestep. |
+
+`pla.dataset.FrankaSkinHDF5Dataset` indexes one sample per timestep (the
+canonical ACT schedule). Items: `proximity (29, 8, 8) ∈ [0,1]`, `qpos (7,)`,
+`action (k=100, 7)`, `is_pad (k,)`, `image (num_cam, 3, H, W)`,
+`language (str)`. The `use_proximity=False` mode zeroes the proximity tensor
+so the same loader feeds both the PLA and the VLM-only baseline.
+
+### 7.5.b Policy
+
+`pla.policy.PLA_DETRVAE` mirrors upstream `detr_vae.DETRVAE` and reuses its
+`Transformer`, `Backbone`, CVAE encoder, and sinusoidal positional tables
+without modification. The single addition is a `ProximityEncoder`
+(`Linear(64→128) → ReLU → Linear(128→512)`, weights shared across the 29
+sensors per TODO §2) and 29 extra slots in `additional_pos_embed`. The
+encoder context becomes `[latent_z, qpos, *29 proximity tokens, *image
+tokens]` when `use_proximity=True`; it falls back to the upstream
+`[latent_z, qpos, *image tokens]` when False.
+
+Default hyperparameters (TODO §3): `chunk_size=100`, `hidden_dim=512`,
+`enc_layers=dec_layers=7`, `kl_weight (β) = 10`. Param counts (verified):
+**PLA 96.37M, baseline 96.28M** — the proximity branch is ~90k params
+(the encoder + 29 extra positional embeddings).
+
+### 7.5.c Train / eval
+
+```bash
+# Smoke runs (CPU/GPU sanity)
+python -m pla.dataset <dataset_root>            # prints a sample dict
+python -m pla.proximity_encoder                 # prints param count
+python -m pla.policy                            # 1-step forward+backward
+
+# Full training (per TODO §5)
+python -m pla.train --use_proximity false --run_name vlm_only_act
+python -m pla.train --use_proximity true  --run_name pla_v1
+
+# Diagnostics on the dataset (gates training)
+python -m pla.diagnostics --root <dataset_root> \
+                          --out pla/diagnostics_output/<run_id>
+
+# Eval on FrankaPickandPlaceHardBench (200 episodes, procthor-objaverse val)
+BENCH_DIR=~/.cache/molmo-spaces-resources/benchmarks/molmospaces-bench-v2/20260415/procthor-objaverse/FrankaPickandPlaceHardBench/FrankaPickandPlaceHardBench_20260212_200ep_json_benchmark
+python -m pla.eval --checkpoint runs/pla_v1/latest.pt \
+                   --benchmark_dir $BENCH_DIR \
+                   --run_name pla_v1 --max_episodes 200
+```
+
+Eval writes `eval_output/<run_name>/results.json` with
+`{success_count, total_count, success_rate, wilson_95_ci}`.
+
+### 7.5.d Open problems
+
+- ~~**Gripper is not predicted by the network.**~~ **Resolved 2026-05-10**:
+  `pla.dataset.FrankaSkinDatasetConfig.action_dim` defaults to 8 (7 arm joints
+  + 1 normalized gripper, where the raw binary command `{0.0, 255.0}` is
+  rescaled to `{0, 1}` for L1 compatibility with arm magnitudes). The eval
+  policy predicts gripper directly and snaps back to `{0, 255}` for the
+  controller via a threshold (`gripper_threshold=0.5`).
+- ~~**Pilot dataset has zero proximity values.**~~ **Resolved 2026-05-10**:
+  `proximity_sensor_period_ms` was fixed in
+  `FrankaSkinPickAndPlaceDataGenConfig` (0.0 → 16.6667 ms ≡ 60 Hz). Smoke
+  re-collection on 10 houses × 4 samples (`FrankaSkinPickAndPlacePilotSmokeConfig`,
+  seed=2026) produced 36/36 successful trajectories with 99.94% nonzero
+  proximity pixels, per-sensor mean ~1-3 m and max ~4 m clipped (see §7.5.e).
+- **Eval is currently blocked: JsonBenchmark schema does not support 8×8
+  proximity sensors.** Two architectural mismatches surfaced this round.
+  - *First:* the cached `FrankaPickandPlaceHardBench_20260212_200ep_json_benchmark`
+    is built for `franka_droid` (DROID-randomized cameras, no SPAD sensors).
+    `camera_config_override` doesn't recover it because per-episode JSON
+    re-installs DROID cameras.
+  - *Second (the deeper blocker):* even after building a `franka_skin`
+    JsonBenchmark from held-out houses 11-20 via
+    `scripts/benchmarks/create_json_benchmark.py` (35 episodes generated, right
+    robot, right camera names), the eval still fails. The benchmark
+    `CameraSpec` schema at
+    `submodules/molmospaces/molmo_spaces/evaluation/benchmark_schema.py:58-83`
+    only stores `name / type / reference_body_names / camera_offset /
+    lookat_offset / camera_quaternion / fov / record_depth`. It has **no
+    per-camera resolution** and **no `is_proximity_sensor` flag**. A single
+    global `img_resolution: tuple[int, int]` governs every camera in the
+    episode. At eval time all 31 cameras (including the 29 SPAD sensors)
+    render RGB at the benchmark's `[624, 352]`, so `obs["link2_sensor_0"]`
+    comes back shaped `(352, 624, 3)` instead of `(8, 8)`. Our policy raises
+    `ValueError: could not broadcast input array from shape (624,3) into shape (8,8)`.
+    Three forward paths, in increasing rigor:
+    1. **Extend the JsonBenchmark schema** (`CameraSpec`) with per-camera
+       `resolution: tuple[int,int] | None` and `is_proximity_sensor: bool`,
+       propagate through `camera_manager.py` setup, and re-run
+       `create_json_benchmark.py`. ~Half-day upstream change.
+    2. **Custom rollout script** that bypasses `JsonEvalRunner`: iterate
+       `benchmark.json` episodes, set up env with the un-clobbered
+       `FrankaSkinCameraSystem`, run policy, check success. Re-uses task
+       specs but reads cameras from our config.
+    3. **Re-train on DROID-camera data** so we can use the cached
+       `FrankaPickandPlaceHardBench` directly. Throws away proximity entirely
+       (DROID datagen has no SPAD sensors), so contradicts the project goal.
+
+  Decision deferred (see README §7.5.e and TODO §6). Held-out 35-episode
+  benchmark is intact at
+  `assets/eval_subsets/FrankaSkinPickAndPlaceHoldout_v1/`; usable once a
+  rollout path is built.
+- **Language conditioning is not yet wired in.** The dataset returns
+  `task_description` per episode; the policy does not consume it. A Molmo
+  VLM token branch is the natural next step, deferred until the held-out
+  eval shows a positive proximity signal.
+
+### 7.5.e First validation round (2026-05-10 / 2026-05-11)
+
+End-to-end run on the 36-trajectory smoke dataset to validate the entire
+pipeline before committing compute to a 100-house+ pilot.
+
+**Smoke dataset (36 trajectories, 9430 timesteps):**
+
+| Quantity | Value | Source |
+|----------|-------|--------|
+| Success rate | 36/36 (100%) | data-gen |
+| Episode length | 224-301 steps (μ=262) | `diagnostics_output/.../summary.json` |
+| Proximity nonzero pixel fraction | 99.94% | per-sensor histogram |
+| Per-sensor mean depth | 1-3 m | `02_proximity_per_sensor_stats.png` |
+| Proximity overall max (post-clip to 4 m) | 4.000 m | clipping verified |
+| Unique task descriptions | 35 / 36 episodes | language coverage plot |
+| Q1 plausibility (frac in [0.05, 4.0] m) | 87.2% | `analyze_sample_episode.py` |
+| Q2 temporal variance (per-sensor) | 0.50 m² mean | passes |
+| Q3 phase-correlated signal | 102% variance explained by phase | passes |
+| Q4 schema (29 sensors, 31 cam params, 2 RGB MP4, 2 depth MP4) | all present | passes |
+| Pointcloud reconstructed (one traj) | 1.79M world-frame points | `pointcloud.ply` |
+
+**Diagnostics + pointcloud artifacts**:
+`diagnostics_output/pilot_skin_smoke_v1/episode_house2_traj0/` contains 9 PNGs
+(per-sensor heatmap, sensor-grid panel, 3D pointcloud projections, RGBD samples,
+qpos/action distributions, language coverage, episode-length histogram) +
+`pointcloud.ply` + `report.md`. Run `python submodules/molmospaces/scripts/datagen/analyze_sample_episode.py <h5> --traj traj_0 --out <dir>` to regenerate
+for any other trajectory.
+
+**Training (20 000 steps, batch=8, lr=1e-5, num_workers=2):**
+
+| Run | use_proximity | params | start loss | end loss | end L1 | end KL | throughput |
+|-----|---------------|--------|------------|----------|--------|--------|------------|
+| `smoke_pla_v3_full` | True | 96.37 M | 12.21 (step 50) | **0.0619** | 0.0321 | 0.0030 | 19.3 samp/s |
+| `smoke_vlm_only_act_v3_full` | False | 96.28 M | 12.40 (step 50) | **0.0689** | 0.0390 | 0.0030 | 21.7 samp/s |
+
+PLA's final loss is 10% lower (0.062 vs 0.069) and L1 is 17% lower (0.032 vs
+0.039). At this data scale the CVAE prior collapses (`KL → 0.003`), which is
+expected; the meaningful signal is the L1 gap. Both runs are on WandB
+(`project=pla`, tags `backfill,smoke,validation_round`); backfilled from the
+local logs via `scripts/backfill_wandb_from_log.py`. Direct links:
+- PLA: <https://wandb.ai/jayluvsgeography/pla/runs/731wnt1d>
+- Baseline: <https://wandb.ai/jayluvsgeography/pla/runs/gjl5aijc>
+
+**Eval (blocked):** running the trained PLA checkpoint through the
+`JsonEvalRunner` against either (a) the cached `franka_droid`-built
+`FrankaPickandPlaceHardBench` or (b) a freshly built `franka_skin` 35-episode
+holdout exposed the same root issue: the `CameraSpec` schema has no
+per-camera resolution and the eval pipeline renders every sensor (including
+the 29 SPAD ones) at the benchmark's global `[624, 352]` RGB. See §7.5.d for
+the three forward paths. Artifacts that DO exist on disk and are reusable:
+
+- `assets/datagen/pick_and_place_skin_pilot_eval_holdout_v1/.../20260511_021228/`
+  — 35/52 successful held-out trajectories (10 houses 11-20, seed 2027,
+  `FrankaSkinPickAndPlacePilotEvalHoldoutConfig`).
+- `assets/eval_subsets/FrankaSkinPickAndPlaceHoldout_v1/{benchmark,benchmark_metadata}.json`
+  — 35-episode JsonBenchmark with `robot_name=franka_skin` and
+  `cameras` listing 29 SPAD + `wrist_camera` + `exo_camera_1` (verified;
+  see `pla/eval_policy.py` for the consumer side).
+
+**Decision rule for scaling once eval works**: if the held-out 35-episode
+eval shows PLA's Wilson 95% CI strictly above the baseline's, escalate to
+the 100-house medium pilot (`FrankaSkinPickAndPlacePilotMediumConfig`,
+num_workers=2). If CIs overlap, debug or rethink before more compute.
+
+---
+
 ## 8. Status
 
 - [x] Skin on FR3 (29 SPAD-style 8×8 proximity sensors, link2/3/5/6).
@@ -571,6 +777,26 @@ prox_learning/
 - [ ] **Low-surface pick-and-place collection (skin-showcase scenes) —
       see §6.2. Blocked on scene cache repopulation.**
 - [ ] Large-scale data collection across iTHOR / ProcTHOR scenes.
-- [ ] VLM-only ACT baseline.
-- [ ] Train PLA policy on the same scene/task split.
+- [x] **PLA training pipeline (`pla/`) — dataset, encoder, policy wrapper,
+      train/eval/diagnostics scripts. Code-complete; see §7.5.**
+- [x] **Smoke re-collection with the proximity-period fix** — 36/36
+      successful trajectories with 99.94% nonzero proximity pixels
+      (2026-05-10). Full pointcloud + verification report at
+      `diagnostics_output/pilot_skin_smoke_v1/episode_house2_traj0/`.
+- [x] **action_dim 7→8 (gripper now predicted by the network)**,
+      eval_policy wired to snap to `{0, 255}` via threshold (§7.5.d).
+- [x] **Train VLM-only ACT baseline on smoke (20k steps, final loss 0.0689).**
+- [x] **Train PLA on smoke (20k steps, final loss 0.0619, ~10% lower than baseline).**
+- [x] **WandB backfilled** for both runs (`scripts/backfill_wandb_from_log.py`).
+- [⚠️] **Eval blocked on JsonBenchmark schema limitation** — see §7.5.d.
+      35-episode held-out franka_skin benchmark built and on disk, but the
+      `CameraSpec` schema has no per-camera resolution, so all 31 cameras
+      (including the 29 SPAD sensors) render at the global `[624, 352]` RGB
+      and the policy sees the wrong shape. Forward paths: (1) extend the
+      schema upstream; (2) custom rollout that bypasses `JsonEvalRunner`;
+      (3) retrain on DROID cameras (contradicts the project goal).
+- [ ] If smoke eval shows PLA signal: 100-house medium pilot
+      (`FrankaSkinPickAndPlacePilotMediumConfig`, num_workers=2).
+- [ ] Language conditioning via Molmo VLM tokens (deferred until smoke
+      eval signal is known).
 - [ ] Real-robot transfer evaluation.

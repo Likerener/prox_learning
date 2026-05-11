@@ -1,0 +1,1 @@
+{"_runtime":0.205740658,"train/kl":0.003,"train/throughput_samp_per_s":21.7,"_timestamp":1.7784872393502946e+09,"_step":20000,"train/loss":0.0689,"train/l1":0.039,"_wandb":{"runtime":0}}

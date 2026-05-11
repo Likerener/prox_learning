@@ -41,3 +41,4 @@ paper/figures/_synth_run/
 # Keep .gitkeep markers
 !**/.gitkeep
 assets/**
+runs/**
