@@ -738,26 +738,74 @@ local logs via `scripts/backfill_wandb_from_log.py`. Direct links:
 - PLA: <https://wandb.ai/jayluvsgeography/pla/runs/731wnt1d>
 - Baseline: <https://wandb.ai/jayluvsgeography/pla/runs/gjl5aijc>
 
-**Eval (blocked):** running the trained PLA checkpoint through the
-`JsonEvalRunner` against either (a) the cached `franka_droid`-built
-`FrankaPickandPlaceHardBench` or (b) a freshly built `franka_skin` 35-episode
-holdout exposed the same root issue: the `CameraSpec` schema has no
-per-camera resolution and the eval pipeline renders every sensor (including
-the 29 SPAD ones) at the benchmark's global `[624, 352]` RGB. See §7.5.d for
-the three forward paths. Artifacts that DO exist on disk and are reusable:
+**Eval — JsonBenchmark route blocked, custom rollout completed.**
 
+The `JsonEvalRunner` route was abandoned after discovering that the
+`CameraSpec` schema has no per-camera resolution or `is_proximity_sensor`
+flag, so the 29 SPAD sensors render as 624×352 RGB instead of 8×8 depth.
+See §7.5.d for the three upstream-fix paths.
+
+Instead, `pla/rollout_eval.py` was built: a thin wrapper around the
+data-generation pipeline (`FrankaSkinPLARolloutConfig`) that uses the
+correct `FrankaSkinCameraSystem` (preserving 8×8 SPAD depth) and swaps
+the planner for `PLAInferencePolicy`. Tasks are deterministic given
+(houses, seed), so PLA and baseline attempt the same set of tasks for a
+head-to-head comparison.
+
+Results — 20 episodes each on houses 11-20, seed 2028:
+
+| Run | success | 95% CI | mean approach Δ (m) | gripper open frac | wall |
+|-----|---------|--------|---------------------|-------------------|------|
+| PLA   (`rollout_pla_v3_holdout`) | 0/18 | [0, 17.6%] | +0.020 | 93% | 70 min |
+| Baseline (`rollout_vlm_v3_holdout`) | 0/20 | [0, 16.1%] | +0.037 | 75% | 73 min |
+
+(PLA's `n=18` rather than 20: pipeline skipped one house with a sampling
+error.)
+
+**Both policies fail every held-out task.** Neither approaches the pickup
+object meaningfully — `mean tcp→pickup` shrinks by only 2-4 cm over 301
+steps (vs the >1 m the planner moves on the same tasks). Failure-mode
+analysis at `analysis_output/rollout_compare_v1/comparison.md`:
+
+- Bucket A (`baseline_fail, PLA_success`): **0 of 18**
+- Bucket B (`baseline_success, PLA_fail`): **0 of 18**
+- Bucket C (`both_success`): **0 of 18**
+- Bucket D (`both_fail`): **18 of 18**
+
+**Root cause: training scale + missing language conditioning.** 36
+training trajectories is too few to learn anything that generalizes across
+houses and objects. The training loss drop (12 → 0.06) was memorization
+of those 36 specific demos. On held-out houses the policy outputs
+near-zero action deltas because it has never seen this distribution. The
+fact that PLA's training-loss L1 was 17% lower than baseline's didn't
+translate to any behavioural difference at rollout time — neither policy
+gets close enough to anything for proximity readings to matter.
+
+**Decision (2026-05-11)**: stop here, write up. Next round needs (a)
+**100-house medium pilot data** (`FrankaSkinPickAndPlacePilotMediumConfig`
+already registered, num_workers=2, ~6-8 h wall time) and (b) **language
+conditioning** so the policy can identify the target object. Re-train +
+re-rollout after both. Anything less and we will keep producing 0/N
+results.
+
+Artifacts kept on disk (all reusable for the next round):
+
+- `runs/smoke_pla_v3_full/` + `runs/smoke_vlm_only_act_v3_full/` —
+  ten 1.16 GB checkpoints each.
 - `assets/datagen/pick_and_place_skin_pilot_eval_holdout_v1/.../20260511_021228/`
-  — 35/52 successful held-out trajectories (10 houses 11-20, seed 2027,
-  `FrankaSkinPickAndPlacePilotEvalHoldoutConfig`).
-- `assets/eval_subsets/FrankaSkinPickAndPlaceHoldout_v1/{benchmark,benchmark_metadata}.json`
-  — 35-episode JsonBenchmark with `robot_name=franka_skin` and
-  `cameras` listing 29 SPAD + `wrist_camera` + `exo_camera_1` (verified;
-  see `pla/eval_policy.py` for the consumer side).
+  — 35/52 successful held-out trajectories (the planner's solution to
+  these same 40 tasks; useful as a ceiling for future evals).
+- `assets/eval_subsets/FrankaSkinPickAndPlaceHoldout_v1/` —
+  patched 35-episode JsonBenchmark (`object_poses` filter +
+  displacement-threshold fix applied). Useful once the `CameraSpec`
+  schema is extended upstream.
+- `rollout_output/{rollout_pla_v3_holdout, rollout_vlm_v3_holdout}/` —
+  20 episodes each, full h5 trajectories + per-episode `results.json`.
+- `analysis_output/rollout_compare_v1/comparison.{md,json}` — the
+  side-by-side report above.
 
-**Decision rule for scaling once eval works**: if the held-out 35-episode
-eval shows PLA's Wilson 95% CI strictly above the baseline's, escalate to
-the 100-house medium pilot (`FrankaSkinPickAndPlacePilotMediumConfig`,
-num_workers=2). If CIs overlap, debug or rethink before more compute.
+WandB: <https://wandb.ai/jayluvsgeography/pla> (PLA `731wnt1d`,
+baseline `gjl5aijc`).
 
 ---
 
@@ -788,15 +836,21 @@ num_workers=2). If CIs overlap, debug or rethink before more compute.
 - [x] **Train VLM-only ACT baseline on smoke (20k steps, final loss 0.0689).**
 - [x] **Train PLA on smoke (20k steps, final loss 0.0619, ~10% lower than baseline).**
 - [x] **WandB backfilled** for both runs (`scripts/backfill_wandb_from_log.py`).
-- [⚠️] **Eval blocked on JsonBenchmark schema limitation** — see §7.5.d.
-      35-episode held-out franka_skin benchmark built and on disk, but the
-      `CameraSpec` schema has no per-camera resolution, so all 31 cameras
-      (including the 29 SPAD sensors) render at the global `[624, 352]` RGB
-      and the policy sees the wrong shape. Forward paths: (1) extend the
-      schema upstream; (2) custom rollout that bypasses `JsonEvalRunner`;
-      (3) retrain on DROID cameras (contradicts the project goal).
-- [ ] If smoke eval shows PLA signal: 100-house medium pilot
-      (`FrankaSkinPickAndPlacePilotMediumConfig`, num_workers=2).
-- [ ] Language conditioning via Molmo VLM tokens (deferred until smoke
-      eval signal is known).
+- [⚠️] **JsonBenchmark eval blocked on `CameraSpec` schema** — needs an
+      upstream PR to add per-camera resolution + `is_proximity_sensor` flag
+      (see §7.5.d). Patched 35-episode benchmark is on disk and ready when
+      the schema is extended.
+- [x] **Custom rollout eval (`pla/rollout_eval.py`) — built, ran on 18-20
+      held-out episodes per condition. Result: PLA 0/18, baseline 0/20.**
+      Both policies produce near-stationary actions on held-out tasks;
+      no behavioural gap. Pipeline validated, training scale insufficient.
+- [ ] **100-house medium pilot collection**
+      (`FrankaSkinPickAndPlacePilotMediumConfig`, num_workers=2,
+      ~6-8 h wall time). Now mandatory — 36 trajs is too few to learn
+      generalizable behaviour.
+- [ ] **Language conditioning via Molmo VLM tokens** — without it the
+      policy has no way to identify the target object in a multi-task
+      setting. Also now on the critical path, not a stretch goal.
+- [ ] Re-train PLA + baseline on the medium dataset WITH language.
+- [ ] Re-run `pla.rollout_eval` and `pla.rollout_compare`.
 - [ ] Real-robot transfer evaluation.

@@ -1,1 +1,0 @@
-{"_step":20000,"train/loss":0.0619,"_wandb":{"runtime":0},"_runtime":0.255623566,"train/l1":0.0321,"train/kl":0.003,"train/throughput_samp_per_s":19.3,"_timestamp":1.7784872288819911e+09}
