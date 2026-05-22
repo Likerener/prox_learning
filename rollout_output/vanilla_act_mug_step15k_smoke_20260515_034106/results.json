@@ -1,0 +1,44 @@
+{
+  "run_name": "vanilla_act_mug_step15k_smoke_20260515_034106",
+  "checkpoint": "runs/vanilla_act_mug_dup250_20260515_012042/step_00015000.pt",
+  "use_proximity": false,
+  "house_inds": [
+    1
+  ],
+  "samples_per_house": 3,
+  "seed": 2028,
+  "n_episodes": 3,
+  "n_success": 0,
+  "success_rate": 0.0,
+  "wilson_95_ci": [
+    0.0,
+    0.5615060804490177
+  ],
+  "rollout_duration_s": 1572.7215149402618,
+  "per_episode": [
+    {
+      "house": 1,
+      "traj": "traj_0",
+      "n_steps": 301,
+      "success": false,
+      "fail": true,
+      "task_description": "Pick up the white mug and place it in or on the round dark stone bowl"
+    },
+    {
+      "house": 1,
+      "traj": "traj_1",
+      "n_steps": 301,
+      "success": false,
+      "fail": true,
+      "task_description": "Pick up the plain white ceramic mug and place it in or on the round dark stone bowl"
+    },
+    {
+      "house": 1,
+      "traj": "traj_2",
+      "n_steps": 301,
+      "success": false,
+      "fail": true,
+      "task_description": "Pick up the plain white ceramic mug with handle and place it in or on the rustic shallow bowl"
+    }
+  ]
+}

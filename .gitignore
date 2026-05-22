@@ -40,3 +40,9 @@ paper/figures/_synth_run/
 
 # Keep .gitkeep markers
 !**/.gitkeep
+assets/**
+runs/**
+wandb/**
+logs/**
+act_style_data/**
+eval_output/**
