@@ -41,13 +41,13 @@ REQUIRED_FILES = [
 ]
 
 
-def folder_is_complete(folder: Path) -> bool:
-    h1 = folder / "house_1"
-    return h1.is_dir() and all((h1 / fn).exists() for fn in REQUIRED_FILES)
+def folder_is_complete(folder: Path, house_dir: str) -> bool:
+    h = folder / house_dir
+    return h.is_dir() and all((h / fn).exists() for fn in REQUIRED_FILES)
 
 
-def list_complete_folders(src: Path) -> list[Path]:
-    return sorted(d for d in src.iterdir() if d.is_dir() and folder_is_complete(d))
+def list_complete_folders(src: Path, house_dir: str) -> list[Path]:
+    return sorted(d for d in src.iterdir() if d.is_dir() and folder_is_complete(d, house_dir))
 
 
 def _run_converter(src_h5: Path, dst: Path, image_h: int, image_w: int) -> int:
@@ -75,6 +75,8 @@ def main() -> int:
                    help="if set, only convert the first N folders (smoke test)")
     p.add_argument("--resume", action="store_true",
                    help="skip folders whose target episode_<idx>.hdf5 already exists")
+    p.add_argument("--house_id", type=int, default=1,
+                   help="house index — controls which house_<id> subdir inside each timestamp dir is read")
     args = p.parse_args()
 
     src: Path = args.src.resolve()
@@ -83,7 +85,8 @@ def main() -> int:
         raise SystemExit(f"src not a directory: {src}")
     dst.mkdir(parents=True, exist_ok=True)
 
-    folders = list_complete_folders(src)
+    house_dir = f"house_{args.house_id}"
+    folders = list_complete_folders(src, house_dir)
     if args.max_folders is not None:
         folders = folders[: args.max_folders]
     print(f"[convert] {len(folders)} complete folders under {src}", flush=True)
@@ -97,7 +100,7 @@ def main() -> int:
             n_skipped_resume += 1
             continue
 
-        src_h5 = folder / "house_1" / "trajectories_batch_1_of_1.h5"
+        src_h5 = folder / house_dir / "trajectories_batch_1_of_1.h5"
         stage = dst / f".stage_{folder.name}"
         if stage.exists():
             shutil.rmtree(stage)

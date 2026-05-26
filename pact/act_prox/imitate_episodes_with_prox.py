@@ -128,7 +128,8 @@ def main(args: dict) -> None:
     camera_names = task_config["camera_names"]
 
     # Franka / Aloha state-action plumbing.
-    if task_name in ("pla_house1_mug", "pla_smoke", "pla_house1_mug_random"):
+    if task_name in ("pla_house1_mug", "pla_smoke", "pla_house1_mug_random",
+                     "pla_house3_mug_random", "pla_houses_1_3_mug_random"):
         state_dim, action_dim = 9, 8
     elif task_name in ("test", "proximity_learning"):
         state_dim = action_dim = 9
