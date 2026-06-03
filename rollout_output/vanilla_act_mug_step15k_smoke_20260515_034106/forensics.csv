@@ -1,4 +1,0 @@
-house,success,fail,contact_ever,tcp_min_frame,tcp_min_m,tcp_first_lt5cm_frame,grip_first_close_frame,grip_close_during_lt5cm,n_grip_transitions,pregrasp_min_m,final_tcp_m,episode_len,traj
-1,0,1,0,2,0.5696,-1,-1,0,1,0.5696,0.5872,301,traj_0
-1,0,1,0,4,0.2015,-1,-1,0,1,0.2015,0.2169,301,traj_1
-1,0,1,0,0,0.417,-1,-1,0,1,0.417,0.4791,301,traj_2

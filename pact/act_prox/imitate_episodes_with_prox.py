@@ -138,6 +138,7 @@ def main(args: dict) -> None:
 
     use_proximity = bool(args.get("use_proximity", False))
     n_proximity_sensors = 0
+    prox_tokens_per_sensor = int(args.get("prox_tokens_per_sensor", 1) or 1)
     extractor = None
     if use_proximity:
         if args.get("prox_encoder_ckpt") is None or args.get("prox_mapping_json") is None:
@@ -146,7 +147,9 @@ def main(args: dict) -> None:
             mapping = json.load(f)
         n_proximity_sensors = int(mapping["n_sensors"])
         extractor = FrozenProxFeatureExtractor(args["prox_encoder_ckpt"], device=torch.device("cuda"))
-        print(f"[init] proximity ON: {n_proximity_sensors} sensors, encoder ckpt = {args['prox_encoder_ckpt']}")
+        print(f"[init] proximity ON: {n_proximity_sensors} sensors x {prox_tokens_per_sensor} tokens "
+              f"= {n_proximity_sensors * prox_tokens_per_sensor} prox tokens, "
+              f"encoder ckpt = {args['prox_encoder_ckpt']}")
     else:
         print("[init] proximity OFF (vanilla ACT)")
 
@@ -170,6 +173,7 @@ def main(args: dict) -> None:
             "state_dim": state_dim,
             "action_dim": action_dim,
             "n_proximity_sensors": n_proximity_sensors,
+            "prox_tokens_per_sensor": prox_tokens_per_sensor,
         }
     elif policy_class == "CNNMLP":
         raise NotImplementedError("CNNMLP + proximity not supported.")
@@ -192,6 +196,7 @@ def main(args: dict) -> None:
         "wandb_run_name": args.get("wandb_run_name"),
         "use_proximity": use_proximity,
         "n_proximity_sensors": n_proximity_sensors,
+        "prox_tokens_per_sensor": prox_tokens_per_sensor,
     }
 
     # Data.
@@ -356,6 +361,9 @@ def _parse_args(argv=None):
                    help="Frozen prox-encoder checkpoint path.")
     p.add_argument("--prox_mapping_json", type=str, default=None,
                    help="Output of pact.act_prox.build_mapping; required when --use_proximity.")
+    p.add_argument("--prox_tokens_per_sensor", type=int, default=1,
+                   help="K tokens per prox sensor (default 1). K>1 gives prox total-token parity "
+                        "with image features (~160 image tokens); e.g. K=6 -> 174 prox tokens.")
     # wandb
     p.add_argument("--use_wandb", action="store_true")
     p.add_argument("--wandb_project", type=str, default="pact")
