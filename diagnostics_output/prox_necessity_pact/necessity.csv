@@ -1,0 +1,7 @@
+house,traj,n_steps,success,vision_blind_frac,prox_active_frac,prox_sees_target_frac,necessity_hard_frac,necessity_soft_frac,file
+house_11,traj_0,270,True,0.0,0.5851851851851851,0.5666666666666667,0.0,0.0,assets/datagen/house_7_test/548/PACT/20260604_222101/house_11/trajectories_batch_1_of_1.h5
+house_12,traj_0,244,True,0.0,0.7786885245901639,0.48360655737704916,0.0,0.0,assets/datagen/house_7_test/548/PACT/20260604_222101/house_12/trajectories_batch_1_of_1.h5
+house_14,traj_0,242,True,0.0,0.6115702479338843,1.0,0.0,0.0,assets/datagen/house_7_test/548/PACT/20260604_222101/house_14/trajectories_batch_1_of_1.h5
+house_15,traj_0,261,True,0.0,0.4061302681992337,1.0,0.0,0.0,assets/datagen/house_7_test/548/PACT/20260604_222101/house_15/trajectories_batch_1_of_1.h5
+house_16,traj_0,301,True,0.0,0.6578073089700996,0.8970099667774086,0.0,0.0,assets/datagen/house_7_test/548/PACT/20260604_222101/house_16/trajectories_batch_1_of_1.h5
+house_18,traj_0,251,True,0.0,0.5139442231075697,0.8844621513944223,0.0,0.0,assets/datagen/house_7_test/548/PACT/20260604_222101/house_18/trajectories_batch_1_of_1.h5

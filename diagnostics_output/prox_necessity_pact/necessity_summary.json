@@ -1,0 +1,12 @@
+{
+  "means": {
+    "vision_blind_frac": 0.0,
+    "prox_active_frac": 0.5922209596643561,
+    "prox_sees_target_frac": 0.8052908903692577,
+    "necessity_hard_frac": 0.0,
+    "necessity_soft_frac": 0.0,
+    "n_trajectories": 6,
+    "frac_meeting_prox_active_0.8": 0.0
+  },
+  "near_m": 0.15
+}

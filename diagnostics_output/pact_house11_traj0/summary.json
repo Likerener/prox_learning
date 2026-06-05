@@ -1,0 +1,75 @@
+{
+  "h5": "/home/jaydv/code/prox_learning/assets/datagen/house_7_test/548/PACT/20260604_222101/house_11/trajectories_batch_1_of_1.h5",
+  "traj": "traj_0",
+  "task_description": "Pick up the brown pinecone keychain and place it in or on the bright insect design bowl",
+  "n_steps": 270,
+  "n_proximity_sensors": 29,
+  "success_final": true,
+  "terminated_final": true,
+  "fail_any": true,
+  "phase_durations": {
+    "unknown": 33,
+    "gripper-open": 6,
+    "pregrasp": 48,
+    "grasp": 15,
+    "gripper-close": 9,
+    "lift": 34,
+    "preplace": 15,
+    "place": 27,
+    "retreat": 13,
+    "go_home": 70
+  },
+  "collision": {
+    "collided": true,
+    "n_collision_steps": 3,
+    "total_contacts": 3,
+    "env_collision_probability": 0.011111111111111112,
+    "any_contact_probability": 0.3148148148148148,
+    "per_phase_env_collision_probability": {
+      "unknown": 0.0,
+      "gripper-open": 0.16666666666666666,
+      "pregrasp": 0.041666666666666664,
+      "grasp": 0.0,
+      "gripper-close": 0.0,
+      "lift": 0.0,
+      "preplace": 0.0,
+      "place": 0.0,
+      "retreat": 0.0,
+      "go_home": 0.0
+    },
+    "collision_steps_idx": [
+      0,
+      1,
+      2
+    ]
+  },
+  "proximity": {
+    "per_sensor_mean_depth_range": [
+      0.2247819486039656,
+      3.5660428064840812
+    ],
+    "global_nearest_surface_m": 0.05000467970967293,
+    "closest_approach_step": 8,
+    "nonzero_fraction": 0.9962962962962965
+  },
+  "tcp_to_object_start_m": {
+    "start": 0.6974312277078335,
+    "min": 0.03816916455310411,
+    "end": 0.6969609666145559
+  },
+  "plots": [
+    "01_qpos_arm.png",
+    "02_qvel_arm.png",
+    "03_gripper.png",
+    "04_action_vs_qpos.png",
+    "05_tcp_trajectory.png",
+    "06_tcp_distances.png",
+    "07_phases.png",
+    "08_proximity_mean_heatmap.png",
+    "09_proximity_closest_heatmap.png",
+    "10_proximity_montage_closest.png",
+    "11_collision_metric.png",
+    "12_collision_prob_by_phase.png",
+    "13_reward_success.png"
+  ]
+}
