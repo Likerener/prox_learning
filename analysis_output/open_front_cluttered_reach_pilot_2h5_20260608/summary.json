@@ -1,0 +1,399 @@
+{
+  "number_of_h5_files": 2,
+  "number_of_trajectories": 2,
+  "number_of_frames": 531,
+  "number_of_sensors": 29,
+  "depth_filter": {
+    "valid_depth_range_m": "(0.00, 4.00]",
+    "min_depth_m": 0.0,
+    "min_inclusive": false,
+    "max_depth_m": 4.0,
+    "strict_near_zero_filter": false
+  },
+  "thresholds_used_m": [
+    0.5,
+    0.2,
+    0.1,
+    0.05
+  ],
+  "suspicious_sensors_list": [
+    "link2_sensor_0"
+  ],
+  "top_sensors_by_activation_lt_0_20m": [
+    {
+      "sensor_name": "link2_sensor_0",
+      "n_valid_frames": 530,
+      "valid_frame_ratio": 0.9981167608286252,
+      "activation_lt_0_20m": 0.269811320754717
+    },
+    {
+      "sensor_name": "link3_sensor_6",
+      "n_valid_frames": 530,
+      "valid_frame_ratio": 0.9981167608286252,
+      "activation_lt_0_20m": 0.1811320754716981
+    },
+    {
+      "sensor_name": "link2_sensor_2",
+      "n_valid_frames": 530,
+      "valid_frame_ratio": 0.9981167608286252,
+      "activation_lt_0_20m": 0.17735849056603772
+    },
+    {
+      "sensor_name": "link5_sensor_3",
+      "n_valid_frames": 530,
+      "valid_frame_ratio": 0.9981167608286252,
+      "activation_lt_0_20m": 0.1660377358490566
+    },
+    {
+      "sensor_name": "link3_sensor_2",
+      "n_valid_frames": 530,
+      "valid_frame_ratio": 0.9981167608286252,
+      "activation_lt_0_20m": 0.14150943396226415
+    },
+    {
+      "sensor_name": "link3_sensor_4",
+      "n_valid_frames": 530,
+      "valid_frame_ratio": 0.9981167608286252,
+      "activation_lt_0_20m": 0.13773584905660377
+    },
+    {
+      "sensor_name": "link3_sensor_5",
+      "n_valid_frames": 530,
+      "valid_frame_ratio": 0.9981167608286252,
+      "activation_lt_0_20m": 0.13018867924528302
+    },
+    {
+      "sensor_name": "link3_sensor_0",
+      "n_valid_frames": 530,
+      "valid_frame_ratio": 0.9981167608286252,
+      "activation_lt_0_20m": 0.12830188679245283
+    },
+    {
+      "sensor_name": "link3_sensor_3",
+      "n_valid_frames": 530,
+      "valid_frame_ratio": 0.9981167608286252,
+      "activation_lt_0_20m": 0.09622641509433963
+    },
+    {
+      "sensor_name": "link6_sensor_4",
+      "n_valid_frames": 530,
+      "valid_frame_ratio": 0.9981167608286252,
+      "activation_lt_0_20m": 0.05660377358490566
+    }
+  ],
+  "top_links_by_activation_lt_0_20m": [
+    {
+      "link": "link3",
+      "n_sensors": 8,
+      "n_valid_frames": 4240,
+      "valid_frame_ratio": 0.9981167608286252,
+      "activation_lt_0_20m": 0.1018867924528302
+    },
+    {
+      "link": "link2",
+      "n_sensors": 7,
+      "n_valid_frames": 3710,
+      "valid_frame_ratio": 0.9981167608286252,
+      "activation_lt_0_20m": 0.06442048517520216
+    },
+    {
+      "link": "link5",
+      "n_sensors": 6,
+      "n_valid_frames": 3180,
+      "valid_frame_ratio": 0.9981167608286252,
+      "activation_lt_0_20m": 0.0279874213836478
+    },
+    {
+      "link": "link6",
+      "n_sensors": 8,
+      "n_valid_frames": 4240,
+      "valid_frame_ratio": 0.9981167608286252,
+      "activation_lt_0_20m": 0.013679245283018868
+    }
+  ],
+  "top_sensors_by_phase_pregrasp_activation_lt_0_20m": [
+    {
+      "sensor_name": "link2_sensor_0",
+      "phase_pregrasp_n_valid_frames": 73,
+      "phase_pregrasp_activation_lt_0_20m": 0.3835616438356164
+    },
+    {
+      "sensor_name": "link2_sensor_2",
+      "phase_pregrasp_n_valid_frames": 73,
+      "phase_pregrasp_activation_lt_0_20m": 0.3287671232876712
+    },
+    {
+      "sensor_name": "link3_sensor_6",
+      "phase_pregrasp_n_valid_frames": 73,
+      "phase_pregrasp_activation_lt_0_20m": 0.3287671232876712
+    },
+    {
+      "sensor_name": "link3_sensor_4",
+      "phase_pregrasp_n_valid_frames": 73,
+      "phase_pregrasp_activation_lt_0_20m": 0.2191780821917808
+    },
+    {
+      "sensor_name": "link3_sensor_5",
+      "phase_pregrasp_n_valid_frames": 73,
+      "phase_pregrasp_activation_lt_0_20m": 0.2054794520547945
+    },
+    {
+      "sensor_name": "link3_sensor_2",
+      "phase_pregrasp_n_valid_frames": 73,
+      "phase_pregrasp_activation_lt_0_20m": 0.1917808219178082
+    },
+    {
+      "sensor_name": "link3_sensor_0",
+      "phase_pregrasp_n_valid_frames": 73,
+      "phase_pregrasp_activation_lt_0_20m": 0.1917808219178082
+    },
+    {
+      "sensor_name": "link3_sensor_3",
+      "phase_pregrasp_n_valid_frames": 73,
+      "phase_pregrasp_activation_lt_0_20m": 0.0821917808219178
+    },
+    {
+      "sensor_name": "link5_sensor_0",
+      "phase_pregrasp_n_valid_frames": 73,
+      "phase_pregrasp_activation_lt_0_20m": 0.0136986301369863
+    },
+    {
+      "sensor_name": "link2_sensor_4",
+      "phase_pregrasp_n_valid_frames": 73,
+      "phase_pregrasp_activation_lt_0_20m": 0.0
+    }
+  ],
+  "findings": {
+    "useful_valid_activation_houses": [
+      {
+        "house_id": "house_120",
+        "sensor_name": "link5_sensor_3",
+        "link": "link5",
+        "n_valid_frames": 276,
+        "valid_frame_ratio": 1.0,
+        "activation_lt_0_20m": 0.21739130434782608,
+        "phase_pregrasp_activation_lt_0_20m": 0.0,
+        "phase_grasp_lift_activation_lt_0_20m": 0.9836065573770492,
+        "pregrasp_or_grasp_lift_signal": 0.9836065573770492
+      },
+      {
+        "house_id": "house_280",
+        "sensor_name": "link5_sensor_3",
+        "link": "link5",
+        "n_valid_frames": 254,
+        "valid_frame_ratio": 0.996078431372549,
+        "activation_lt_0_20m": 0.11023622047244094,
+        "phase_pregrasp_activation_lt_0_20m": 0.0,
+        "phase_grasp_lift_activation_lt_0_20m": 0.4827586206896552,
+        "pregrasp_or_grasp_lift_signal": 0.4827586206896552
+      }
+    ],
+    "strongest_valid_signal_sensors": [
+      {
+        "sensor_name": "link2_sensor_0",
+        "link": "link2",
+        "n_valid_frames": 530,
+        "valid_frame_ratio": 0.9981167608286252,
+        "activation_lt_0_20m": 0.269811320754717,
+        "phase_pregrasp_activation_lt_0_20m": 0.3835616438356164,
+        "phase_grasp_lift_activation_lt_0_20m": 0.5126050420168067,
+        "suspicious_self_sensing": true
+      },
+      {
+        "sensor_name": "link3_sensor_6",
+        "link": "link3",
+        "n_valid_frames": 530,
+        "valid_frame_ratio": 0.9981167608286252,
+        "activation_lt_0_20m": 0.1811320754716981,
+        "phase_pregrasp_activation_lt_0_20m": 0.3287671232876712,
+        "phase_grasp_lift_activation_lt_0_20m": 0.0,
+        "suspicious_self_sensing": false
+      },
+      {
+        "sensor_name": "link2_sensor_2",
+        "link": "link2",
+        "n_valid_frames": 530,
+        "valid_frame_ratio": 0.9981167608286252,
+        "activation_lt_0_20m": 0.17735849056603772,
+        "phase_pregrasp_activation_lt_0_20m": 0.3287671232876712,
+        "phase_grasp_lift_activation_lt_0_20m": 0.0,
+        "suspicious_self_sensing": false
+      },
+      {
+        "sensor_name": "link5_sensor_3",
+        "link": "link5",
+        "n_valid_frames": 530,
+        "valid_frame_ratio": 0.9981167608286252,
+        "activation_lt_0_20m": 0.1660377358490566,
+        "phase_pregrasp_activation_lt_0_20m": 0.0,
+        "phase_grasp_lift_activation_lt_0_20m": 0.7394957983193278,
+        "suspicious_self_sensing": false
+      },
+      {
+        "sensor_name": "link3_sensor_2",
+        "link": "link3",
+        "n_valid_frames": 530,
+        "valid_frame_ratio": 0.9981167608286252,
+        "activation_lt_0_20m": 0.14150943396226415,
+        "phase_pregrasp_activation_lt_0_20m": 0.1917808219178082,
+        "phase_grasp_lift_activation_lt_0_20m": 0.0,
+        "suspicious_self_sensing": false
+      },
+      {
+        "sensor_name": "link3_sensor_4",
+        "link": "link3",
+        "n_valid_frames": 530,
+        "valid_frame_ratio": 0.9981167608286252,
+        "activation_lt_0_20m": 0.13773584905660377,
+        "phase_pregrasp_activation_lt_0_20m": 0.2191780821917808,
+        "phase_grasp_lift_activation_lt_0_20m": 0.0,
+        "suspicious_self_sensing": false
+      },
+      {
+        "sensor_name": "link3_sensor_5",
+        "link": "link3",
+        "n_valid_frames": 530,
+        "valid_frame_ratio": 0.9981167608286252,
+        "activation_lt_0_20m": 0.13018867924528302,
+        "phase_pregrasp_activation_lt_0_20m": 0.2054794520547945,
+        "phase_grasp_lift_activation_lt_0_20m": 0.0,
+        "suspicious_self_sensing": false
+      },
+      {
+        "sensor_name": "link3_sensor_0",
+        "link": "link3",
+        "n_valid_frames": 530,
+        "valid_frame_ratio": 0.9981167608286252,
+        "activation_lt_0_20m": 0.12830188679245283,
+        "phase_pregrasp_activation_lt_0_20m": 0.1917808219178082,
+        "phase_grasp_lift_activation_lt_0_20m": 0.0,
+        "suspicious_self_sensing": false
+      },
+      {
+        "sensor_name": "link3_sensor_3",
+        "link": "link3",
+        "n_valid_frames": 530,
+        "valid_frame_ratio": 0.9981167608286252,
+        "activation_lt_0_20m": 0.09622641509433963,
+        "phase_pregrasp_activation_lt_0_20m": 0.0821917808219178,
+        "phase_grasp_lift_activation_lt_0_20m": 0.0,
+        "suspicious_self_sensing": false
+      },
+      {
+        "sensor_name": "link6_sensor_4",
+        "link": "link6",
+        "n_valid_frames": 530,
+        "valid_frame_ratio": 0.9981167608286252,
+        "activation_lt_0_20m": 0.05660377358490566,
+        "phase_pregrasp_activation_lt_0_20m": 0.0,
+        "phase_grasp_lift_activation_lt_0_20m": 0.25210084033613445,
+        "suspicious_self_sensing": false
+      }
+    ],
+    "strongest_valid_signal_links": [
+      {
+        "link": "link3",
+        "n_sensors": 8,
+        "n_valid_frames": 4240,
+        "valid_frame_ratio": 0.9981167608286252,
+        "activation_lt_0_20m": 0.1018867924528302,
+        "phase_pregrasp_activation_lt_0_20m": 0.1523972602739726,
+        "phase_grasp_lift_activation_lt_0_20m": 0.0
+      },
+      {
+        "link": "link2",
+        "n_sensors": 7,
+        "n_valid_frames": 3710,
+        "valid_frame_ratio": 0.9981167608286252,
+        "activation_lt_0_20m": 0.06442048517520216,
+        "phase_pregrasp_activation_lt_0_20m": 0.10176125244618395,
+        "phase_grasp_lift_activation_lt_0_20m": 0.07322929171668667
+      },
+      {
+        "link": "link5",
+        "n_sensors": 6,
+        "n_valid_frames": 3180,
+        "valid_frame_ratio": 0.9981167608286252,
+        "activation_lt_0_20m": 0.0279874213836478,
+        "phase_pregrasp_activation_lt_0_20m": 0.00228310502283105,
+        "phase_grasp_lift_activation_lt_0_20m": 0.12324929971988796
+      },
+      {
+        "link": "link6",
+        "n_sensors": 8,
+        "n_valid_frames": 4240,
+        "valid_frame_ratio": 0.9981167608286252,
+        "activation_lt_0_20m": 0.013679245283018868,
+        "phase_pregrasp_activation_lt_0_20m": 0.0,
+        "phase_grasp_lift_activation_lt_0_20m": 0.06092436974789916
+      }
+    ],
+    "focus_link_phase_activation_lt_0_20m": {
+      "approach": 0.0,
+      "pregrasp": 0.0009784735812133072,
+      "grasp_lift": 0.08763505402160865,
+      "transit": 0.0,
+      "place": 0.0
+    },
+    "focus_link_phase_valid_frame_counts": {
+      "approach": 154,
+      "pregrasp": 1022,
+      "grasp_lift": 1666,
+      "transit": 490,
+      "place": 840
+    },
+    "target_phase_activation_lt_0_20m": 0.0546875,
+    "other_canonical_phase_activation_lt_0_20m": 0.0,
+    "activation_concentrates_in_pregrasp_grasp_lift": true,
+    "keep_environment_by_decision_criteria": false,
+    "suspicious_house_sensor_rows_preview": [
+      {
+        "house_id": "house_120",
+        "sensor_name": "link2_sensor_0",
+        "link": "link2",
+        "n_frames": 276,
+        "n_valid_frames": 276,
+        "valid_frame_ratio": 1.0,
+        "activation_lt_0_20m": 0.5181159420289855,
+        "activation_lt_0_05m": 0.0,
+        "median_frame_to_frame_abs_diff_m": 0.00021313130855560303,
+        "suspicious_reason": "activation_spread_across_many_phases"
+      }
+    ],
+    "old_audit_comparison": {
+      "available": false,
+      "reason": "no_old_audit_dir_supplied"
+    }
+  },
+  "success_failure_comparison_available": false,
+  "success_vs_failure_plot_written": false,
+  "success_trajectories": 2,
+  "failure_trajectories": 0,
+  "unknown_success_trajectories": 0,
+  "phases_seen": [
+    "approach",
+    "grasp_lift",
+    "place",
+    "post_place",
+    "pregrasp",
+    "transit",
+    "unknown"
+  ],
+  "phase_frame_counts": {
+    "approach": 12,
+    "grasp_lift": 119,
+    "place": 60,
+    "post_place": 166,
+    "pregrasp": 73,
+    "transit": 35,
+    "unknown": 66
+  },
+  "phase_source_counts": {
+    "policy": 2
+  },
+  "warnings": [],
+  "input_h5_files": [
+    "/mnt/d/Machines virtueles/prox_learning/assets/datagen/pick_and_place_skin_open_front_cluttered_reach_pilot_v1/20260608_022354/house_120/trajectories_batch_1_of_1.h5",
+    "/mnt/d/Machines virtueles/prox_learning/assets/datagen/pick_and_place_skin_open_front_cluttered_reach_pilot_v1/20260608_022354/house_280/trajectories_batch_1_of_1.h5"
+  ]
+}
