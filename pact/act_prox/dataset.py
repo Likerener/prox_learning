@@ -140,7 +140,9 @@ class ProxAugmentedEpisodicDataset(Dataset):
             qpos = root["/observations/qpos"][start_ts]
             image_dict: Dict[str, np.ndarray] = {}
             for cam_name in self.camera_names:
-                image_dict[cam_name] = root[f"/observations/images/{cam_name}"][start_ts]
+                _im = root[f"/observations/images/{cam_name}"][start_ts]
+                from pact.act_prox.train_degrade import degrade as _deg
+                image_dict[cam_name] = _deg(_im, cam_name)
             if is_sim:
                 action = root["/action"][start_ts:]
                 action_len = episode_len - start_ts

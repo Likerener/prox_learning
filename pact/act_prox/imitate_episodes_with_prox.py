@@ -129,7 +129,9 @@ def main(args: dict) -> None:
 
     # Franka / Aloha state-action plumbing.
     if task_name in ("pla_house1_mug", "pla_smoke", "pla_house1_mug_random",
-                     "pla_house3_mug_random", "pla_houses_1_3_mug_random"):
+                     "pla_house3_mug_random", "pla_houses_1_3_mug_random",
+                     "openfrontcluttered_small",
+                     "openfrontcluttered_52"):
         state_dim, action_dim = 9, 8
     elif task_name in ("test", "proximity_learning"):
         state_dim = action_dim = 9
@@ -137,6 +139,10 @@ def main(args: dict) -> None:
         state_dim = action_dim = 14
 
     use_proximity = bool(args.get("use_proximity", False))
+    # Fume-hood datasets use the single-arm FR3 layout: qpos = arm(7) + 2
+    # finger joints, action = arm(7) + 1 gripper command.
+    if task_name.startswith("fumehood"):
+        state_dim, action_dim = 9, 8
     n_proximity_sensors = 0
     prox_tokens_per_sensor = int(args.get("prox_tokens_per_sensor", 1) or 1)
     extractor = None
@@ -223,6 +229,12 @@ def main(args: dict) -> None:
     os.makedirs(args["ckpt_dir"], exist_ok=True)
     with open(os.path.join(args["ckpt_dir"], "dataset_stats.pkl"), "wb") as f:
         pickle.dump(stats, f)
+
+    print("[debug] len(train_loader) =", len(train_loader))
+    print("[debug] len(val_loader) =", len(val_loader))
+    print("[debug] train dataset size =", len(train_loader.dataset))
+    print("[debug] val dataset size =", len(val_loader.dataset))
+
 
     train_bc(train_loader, val_loader, config, extractor)
 
