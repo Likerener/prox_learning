@@ -1,0 +1,27 @@
+diff --git a/molmo_spaces/policy/learned_policy/pi_policy.py b/molmo_spaces/policy/learned_policy/pi_policy.py
+index d063dcd..5a4ff68 100644
+--- a/molmo_spaces/policy/learned_policy/pi_policy.py
++++ b/molmo_spaces/policy/learned_policy/pi_policy.py
+@@ -151,6 +151,7 @@ class PI_Policy(InferencePolicy, StatefulPolicy):
+             self.prepare_model()
+         if self.starting_time is None:
+             self.starting_time = time.time()
++
+         if self.actions_buffer is None or self.current_buffer_index >= self.chunk_size:
+             import websockets
+ 
+@@ -163,7 +164,14 @@ class PI_Policy(InferencePolicy, StatefulPolicy):
+                 time.sleep(5)
+                 log.info("Retrying inference...")
+                 self.actions_buffer = self.model.infer(model_input)["actions"]
++
++            # Websocket server may return actions as a Python list.
++            # Convert back to numpy array so model_output_to_action can use reshape().
++            if isinstance(self.actions_buffer, list):
++                self.actions_buffer = np.asarray(self.actions_buffer, dtype=np.float32)
++
+             self.current_buffer_index = 0
++
+         model_output = self.actions_buffer[self.current_buffer_index]
+         self.current_buffer_index += 1
+         return model_output

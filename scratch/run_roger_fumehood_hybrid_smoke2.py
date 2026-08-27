@@ -1,0 +1,42 @@
+from datetime import datetime
+from pathlib import Path
+
+from molmo_spaces.data_generation.config.object_manipulation_datagen_configs import (
+    FrankaSkinHybridFumehoodSmokeConfig,
+)
+from molmo_spaces.data_generation.pipeline import ParallelRolloutRunner
+
+
+def main():
+    run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    cfg = FrankaSkinHybridFumehoodSmokeConfig()
+    cfg.num_workers = 1
+    cfg.seed = 2026
+    cfg.use_wandb = False
+
+    cfg.task_sampler_config.house_inds = [0, 1]
+    cfg.task_sampler_config.samples_per_house = 1
+    cfg.task_sampler_config.max_total_attempts_multiplier = 3
+    cfg.task_sampler_config.max_allowed_sequential_task_sampler_failures = 20
+    cfg.task_sampler_config.max_allowed_sequential_rollout_failures = 20
+    cfg.task_sampler_config.max_allowed_sequential_irrecoverable_failures = 200
+
+    cfg.output_dir = (
+        Path("assets/datagen")
+        / "roger_fumehood_basic_smoke1"
+        / "FrankaSkinHybridFumehoodSmokeConfig"
+        / run_id
+    )
+
+    print("output_dir =", cfg.output_dir, flush=True)
+    print("tag =", cfg.tag, flush=True)
+    print("sampler =", cfg.task_sampler_config.task_sampler_class.__name__, flush=True)
+    print("policy =", type(cfg.policy_config).__name__, flush=True)
+
+    success_count, total_count = ParallelRolloutRunner(cfg).run()
+    print("Final Success count:", success_count, "Total count:", total_count, flush=True)
+
+
+if __name__ == "__main__":
+    main()
