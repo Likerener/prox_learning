@@ -1,0 +1,262 @@
+{
+  "n_trajectories": 683,
+  "lengths": {
+    "min": 209,
+    "max": 301,
+    "mean": 260.88286969253295,
+    "median": 259.0,
+    "n": 683
+  },
+  "actions_qpos": {
+    "qpos_n": 3220,
+    "action_n": 3208,
+    "qpos_min": [
+      -0.8379656076431274,
+      -1.1325745582580566,
+      -1.0914456844329834,
+      -3.0032238960266113,
+      -1.0297009944915771,
+      1.0773289203643799,
+      -2.08150315284729
+    ],
+    "qpos_max": [
+      1.4892854690551758,
+      1.0611693859100342,
+      1.0694009065628052,
+      -0.6972836852073669,
+      1.0336613655090332,
+      3.3267016410827637,
+      2.2683911323547363
+    ],
+    "action_min": [
+      -0.8381597906679681,
+      -1.1313419842596244,
+      -1.9780495110651601,
+      -3.0224229778614986,
+      -1.0297206917712292,
+      1.067869562474202,
+      -2.082337100993675
+    ],
+    "action_max": [
+      1.5142966046730995,
+      1.454738532703374,
+      1.5886865923987334,
+      -0.5667755731385522,
+      1.0337010985923802,
+      3.3268998890707557,
+      2.268394737487511
+    ]
+  },
+  "language": {
+    "n_episodes": 683,
+    "n_unique": 666,
+    "empty_count": 0
+  },
+  "proximity": {
+    "link2_sensor_0": {
+      "min": 0.0,
+      "max": 0.0,
+      "mean": 0.0,
+      "std": 0.0,
+      "zero_frac": 1.0
+    },
+    "link2_sensor_1": {
+      "min": 0.0,
+      "max": 0.0,
+      "mean": 0.0,
+      "std": 0.0,
+      "zero_frac": 1.0
+    },
+    "link2_sensor_2": {
+      "min": 0.0,
+      "max": 0.0,
+      "mean": 0.0,
+      "std": 0.0,
+      "zero_frac": 1.0
+    },
+    "link2_sensor_3": {
+      "min": 0.0,
+      "max": 0.0,
+      "mean": 0.0,
+      "std": 0.0,
+      "zero_frac": 1.0
+    },
+    "link2_sensor_4": {
+      "min": 0.0,
+      "max": 0.0,
+      "mean": 0.0,
+      "std": 0.0,
+      "zero_frac": 1.0
+    },
+    "link2_sensor_5": {
+      "min": 0.0,
+      "max": 0.0,
+      "mean": 0.0,
+      "std": 0.0,
+      "zero_frac": 1.0
+    },
+    "link2_sensor_6": {
+      "min": 0.0,
+      "max": 0.0,
+      "mean": 0.0,
+      "std": 0.0,
+      "zero_frac": 1.0
+    },
+    "link3_sensor_0": {
+      "min": 0.0,
+      "max": 0.0,
+      "mean": 0.0,
+      "std": 0.0,
+      "zero_frac": 1.0
+    },
+    "link3_sensor_1": {
+      "min": 0.0,
+      "max": 0.0,
+      "mean": 0.0,
+      "std": 0.0,
+      "zero_frac": 1.0
+    },
+    "link3_sensor_2": {
+      "min": 0.0,
+      "max": 0.0,
+      "mean": 0.0,
+      "std": 0.0,
+      "zero_frac": 1.0
+    },
+    "link3_sensor_3": {
+      "min": 0.0,
+      "max": 0.0,
+      "mean": 0.0,
+      "std": 0.0,
+      "zero_frac": 1.0
+    },
+    "link3_sensor_4": {
+      "min": 0.0,
+      "max": 0.0,
+      "mean": 0.0,
+      "std": 0.0,
+      "zero_frac": 1.0
+    },
+    "link3_sensor_5": {
+      "min": 0.0,
+      "max": 0.0,
+      "mean": 0.0,
+      "std": 0.0,
+      "zero_frac": 1.0
+    },
+    "link3_sensor_6": {
+      "min": 0.0,
+      "max": 0.0,
+      "mean": 0.0,
+      "std": 0.0,
+      "zero_frac": 1.0
+    },
+    "link3_sensor_7": {
+      "min": 0.0,
+      "max": 0.0,
+      "mean": 0.0,
+      "std": 0.0,
+      "zero_frac": 1.0
+    },
+    "link5_sensor_0": {
+      "min": 0.0,
+      "max": 0.0,
+      "mean": 0.0,
+      "std": 0.0,
+      "zero_frac": 1.0
+    },
+    "link5_sensor_1": {
+      "min": 0.0,
+      "max": 0.0,
+      "mean": 0.0,
+      "std": 0.0,
+      "zero_frac": 1.0
+    },
+    "link5_sensor_2": {
+      "min": 0.0,
+      "max": 0.0,
+      "mean": 0.0,
+      "std": 0.0,
+      "zero_frac": 1.0
+    },
+    "link5_sensor_3": {
+      "min": 0.0,
+      "max": 0.0,
+      "mean": 0.0,
+      "std": 0.0,
+      "zero_frac": 1.0
+    },
+    "link5_sensor_4": {
+      "min": 0.0,
+      "max": 0.0,
+      "mean": 0.0,
+      "std": 0.0,
+      "zero_frac": 1.0
+    },
+    "link5_sensor_5": {
+      "min": 0.0,
+      "max": 0.0,
+      "mean": 0.0,
+      "std": 0.0,
+      "zero_frac": 1.0
+    },
+    "link6_sensor_0": {
+      "min": 0.0,
+      "max": 0.0,
+      "mean": 0.0,
+      "std": 0.0,
+      "zero_frac": 1.0
+    },
+    "link6_sensor_1": {
+      "min": 0.0,
+      "max": 0.0,
+      "mean": 0.0,
+      "std": 0.0,
+      "zero_frac": 1.0
+    },
+    "link6_sensor_2": {
+      "min": 0.0,
+      "max": 0.0,
+      "mean": 0.0,
+      "std": 0.0,
+      "zero_frac": 1.0
+    },
+    "link6_sensor_3": {
+      "min": 0.0,
+      "max": 0.0,
+      "mean": 0.0,
+      "std": 0.0,
+      "zero_frac": 1.0
+    },
+    "link6_sensor_4": {
+      "min": 0.0,
+      "max": 0.0,
+      "mean": 0.0,
+      "std": 0.0,
+      "zero_frac": 1.0
+    },
+    "link6_sensor_5": {
+      "min": 0.0,
+      "max": 0.0,
+      "mean": 0.0,
+      "std": 0.0,
+      "zero_frac": 1.0
+    },
+    "link6_sensor_6": {
+      "min": 0.0,
+      "max": 0.0,
+      "mean": 0.0,
+      "std": 0.0,
+      "zero_frac": 1.0
+    },
+    "link6_sensor_7": {
+      "min": 0.0,
+      "max": 0.0,
+      "mean": 0.0,
+      "std": 0.0,
+      "zero_frac": 1.0
+    }
+  },
+  "proximity_overall_max": 0.0,
+  "proximity_signal_ok": false
+}
